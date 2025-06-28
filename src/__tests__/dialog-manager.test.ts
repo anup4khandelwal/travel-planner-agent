@@ -9,40 +9,85 @@ jest.mock('@langchain/ollama', () => {
     Ollama: jest.fn().mockImplementation(() => {
       return {
         invoke: jest.fn().mockImplementation(async (prompt: string) => {
+
           // Mock responses based on prompt content
-          if (prompt.includes('intent classification')) {
-            if (prompt.toLowerCase().includes('flight')) {
-              return JSON.stringify({ intent: "Flight" });
-            } else if (prompt.toLowerCase().includes('hotel')) {
-              return JSON.stringify({ intent: "Hotel" });
+          if (prompt.includes('Respond with only one word: Flight, Hotel, Both, or Other')) {
+
+            // Intent classification - return simple word response
+            // Check for empty/error messages first
+            if (prompt.toLowerCase().includes('invalid') || prompt.toLowerCase().includes('error') || prompt.includes('User message: ""')) {
+              // For error handling tests and empty messages, return Other to trigger fallback
+
+              return "Other";
+            } else if (prompt.toLowerCase().includes('hotel') && prompt.toLowerCase().includes('paris')) {
+              return "Hotel";
+            } else if (prompt.toLowerCase().includes('weather')) {
+              return "Other";
+            } else if (prompt.toLowerCase().includes('new search') || prompt.toLowerCase().includes('different search')) {
+              return "Flight"; // New search requests are typically travel-related
+            } else if (prompt.toLowerCase().includes('flight') || prompt.toLowerCase().includes('new york') || prompt.toLowerCase().includes('los angeles')) {
+              return "Flight";
+            } else if (prompt.toLowerCase().includes('complete flight')) {
+              return "Flight";
             } else {
-              return JSON.stringify({ intent: "Other" });
+
+              return "Flight"; // Default for most travel queries
             }
           } 
           
-          // Entity extraction responses
-          if (prompt.includes('entity extraction')) {
-            if (prompt.toLowerCase().includes('flight')) {
+          // Entity extraction responses - return JSON
+          if (prompt.includes('entity extraction') || prompt.includes('Extract the following information') || prompt.includes('Extract flight booking information')) {
+            // Check for complete flight information (all required fields)
+            if (prompt.toLowerCase().includes('december 25th') || prompt.toLowerCase().includes('dec 25') ||
+                prompt.toLowerCase().includes('2 passengers') ||
+                (prompt.toLowerCase().includes('new york') && prompt.toLowerCase().includes('los angeles') && prompt.toLowerCase().includes('december')) ||
+                (prompt.toLowerCase().includes('nyc') && prompt.toLowerCase().includes('la') && prompt.toLowerCase().includes('dec 25'))) {
               return JSON.stringify({
                 fromCity: "New York",
-                toCity: "Los Angeles",
-                departureDate: "2024-12-15",
-                returnDate: "2024-12-20",
-                numPassengers: 1
+                toCity: "Los Angeles", 
+                departureDate: "2024-12-25",
+                passengerCount: 2
               });
-            } else if (prompt.toLowerCase().includes('hotel')) {
+            } else if (prompt.toLowerCase().includes('december 25th') || prompt.toLowerCase().includes('leave on december') || 
+                      (prompt.includes('Existing information:') && prompt.toLowerCase().includes('december'))) {
+              // Adding departure date to existing slots - should have all required fields now
+              const result = JSON.stringify({
+                departureDate: "2024-12-25"
+              });
+
+              return result;
+            } else if (prompt.toLowerCase().includes('flight') || prompt.toLowerCase().includes('nyc') || prompt.toLowerCase().includes('new york') || prompt.toLowerCase().includes('los angeles')) {
+              // Partial flight information - missing departure date
+              if (prompt.includes('Existing information:') && prompt.includes('{}')) {
+                // First extraction - no existing slots
+                const result = JSON.stringify({
+                  fromCity: "New York",
+                  toCity: "Los Angeles",
+                  passengerCount: 1
+                });
+
+                return result;
+              } else {
+                // Subsequent extraction - return only new info
+                const result = JSON.stringify({});
+
+                return result;
+              }
+            } else if (prompt.toLowerCase().includes('hotel') || prompt.toLowerCase().includes('paris')) {
               return JSON.stringify({
                 location: "Paris",
                 checkIn: "2024-12-15",
                 checkOut: "2024-12-20",
-                guests: 2,
-                rooms: 1
+                guestCount: 2,
+                roomCount: 1
               });
+            } else {
+              return JSON.stringify({});
             }
           }
           
-          // Default response
-          return JSON.stringify({ message: "This is a mock response" });
+          // Default response for other prompts
+          return "Flight";
         })
       };
     })
@@ -104,6 +149,7 @@ describe('DialogManager', () => {
       );
       
       // Should proceed to search since we have enough information
+
       expect(response.type).toBe('search_results');
       expect(response.data).toBeDefined();
     });
@@ -115,6 +161,7 @@ describe('DialogManager', () => {
         'Find flights from New York to Los Angeles on December 25th for 2 passengers'
       );
       
+
       expect(response.type).toBe('search_results');
       expect(response.content).toContain('flights');
     });
@@ -155,6 +202,7 @@ describe('DialogManager', () => {
       // Test with empty message - system should handle gracefully
       const response = await dialogManager.processMessage('test-user', '');
       
+
       // System should return a message response, not crash
       expect(response.type).toBe('message');
       expect(response.content).toBeDefined();
