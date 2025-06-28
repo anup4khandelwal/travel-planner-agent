@@ -4,16 +4,22 @@ WORKDIR /app
 
 # Copy package files first for better caching
 COPY package*.json ./
-COPY tsconfig.json ./
+COPY tsconfig*.json ./
 
 # Install all dependencies (including dev dependencies for build)
 RUN npm install
 
-# Copy all source files
-COPY . .
+# Copy source files explicitly
+COPY src ./src
+COPY public ./public
 
-# Build the application
-RUN npm run build
+# Debug: List files to verify they're copied
+RUN echo "Files in /app:" && ls -la
+RUN echo "Files in /app/src:" && ls -la src/
+RUN echo "TypeScript files found:" && find src -name "*.ts" | head -5
+
+# Build the application using production config
+RUN npx tsc -p tsconfig.build.json
 
 # Remove dev dependencies and clean up
 RUN npm prune --production && \

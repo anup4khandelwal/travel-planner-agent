@@ -1,0 +1,26 @@
+# Simple Dockerfile for Travel Planner Agent
+FROM node:20-slim
+
+WORKDIR /app
+
+# Copy everything first (simpler approach)
+COPY . .
+
+# Install dependencies
+RUN npm install
+
+# Build the application
+RUN npm run build
+
+# Clean up
+RUN npm prune --production
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# Expose port
+EXPOSE 3001
+
+# Start the application
+CMD ["node", "dist/index.js"]
