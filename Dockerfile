@@ -2,15 +2,20 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install ALL dependencies (including dev)
 COPY package*.json ./
-RUN npm ci
+COPY tsconfig.json ./
+RUN npm install
 
 # Copy source code
-COPY . .
+COPY src/ ./src/
+COPY public/ ./public/
 
 # Build TypeScript code
 RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
 
 # Set environment variables
 ENV NODE_ENV=production

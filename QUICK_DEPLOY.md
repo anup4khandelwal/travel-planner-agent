@@ -12,6 +12,7 @@
 3. Click "New Project" → "Deploy from GitHub repo"
 4. Select your `travel-agent` repository
 5. Railway will automatically detect it's a Node.js app
+6. **Important**: Railway will use Nixpacks (not Docker) by default, which works better for Node.js apps
 
 ### Step 3: Set Environment Variables
 In Railway dashboard → Variables tab, add:
@@ -128,18 +129,26 @@ Once deployed, test these endpoints:
 1. **Build Fails**: 
    - Check if all dependencies are in `package.json`
    - Ensure Node.js version is 18+
+   - **Railway**: Use Nixpacks instead of Docker (default)
 
-2. **App Crashes**:
+2. **Docker Build Issues**:
+   - TypeScript compilation errors: Make sure `tsconfig.json` is included
+   - Dependency issues: Use `npm install` instead of `npm ci` in Dockerfile
+   - **Recommendation**: Use Railway's Nixpacks (automatic) instead of Docker
+
+3. **App Crashes**:
    - Check environment variables are set correctly
    - Verify OpenAI API key is valid
+   - Check deployment logs for specific errors
 
-3. **CORS Errors**:
+4. **CORS Errors**:
    - Your deployment domain should be automatically allowed
    - Check browser console for specific errors
 
-4. **LLM Not Responding**:
+5. **LLM Not Responding**:
    - Verify `OPENAI_API_KEY` is set correctly
    - Check OpenAI account has billing enabled
+   - Test with a simple message first
 
 ---
 
