@@ -28,6 +28,10 @@ export default {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   clearMocks: true,
+  extensionsToTreatAsEsm: ['.ts'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(@langchain/openai|@langchain/core|@langchain/community)/)',
+  ],
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
   moduleDirectories: ['node_modules', '<rootDir>/src']
 };

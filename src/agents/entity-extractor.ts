@@ -1,14 +1,12 @@
-import { Ollama } from '@langchain/ollama';
+import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { Intent, FlightSlots, HotelSlots, CombinedSlots, FlightSlotsSchema, HotelSlotsSchema, CombinedSlotsSchema } from '../types/schemas.js';
+import { createLLM } from '../config/llm-config.js';
 
 export class EntityExtractor {
-  private llm: Ollama;
+  private llm: BaseLanguageModel;
 
-  constructor() {
-    this.llm = new Ollama({
-      baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-      model: 'gemma3:latest',
-    });
+  constructor(llm?: BaseLanguageModel) {
+    this.llm = llm || createLLM();
   }
 
   /**
@@ -48,7 +46,8 @@ Return only valid JSON without any explanation:`;
 
     try {
       const response = await this.llm.invoke(prompt);
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const responseText = (typeof response === 'string' ? response : response.content).toString();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         const extractedData = JSON.parse(jsonMatch[0]);
@@ -91,7 +90,8 @@ Return only valid JSON without any explanation:`;
 
     try {
       const response = await this.llm.invoke(prompt);
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const responseText = (typeof response === 'string' ? response : response.content).toString();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         const extractedData = JSON.parse(jsonMatch[0]);
@@ -148,7 +148,8 @@ Return only valid JSON without any explanation:`;
 
     try {
       const response = await this.llm.invoke(prompt);
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const responseText = (typeof response === 'string' ? response : response.content).toString();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         const extractedData = JSON.parse(jsonMatch[0]);

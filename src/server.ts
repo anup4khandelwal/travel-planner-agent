@@ -39,7 +39,14 @@ export class TravelPlannerServer {
   private async setupMiddleware() {
     // CORS configuration
     await this.app.register(cors, {
-      origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+      origin: [
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000',
+        // Add your deployment domain here
+        /\.railway\.app$/,
+        /\.vercel\.app$/,
+        /\.netlify\.app$/
+      ],
       credentials: true
     });
   }

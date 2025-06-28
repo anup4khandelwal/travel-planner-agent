@@ -1,14 +1,12 @@
-import { Ollama } from '@langchain/ollama';
+import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import { Intent, IntentSchema } from '../types/schemas.js';
+import { createLLM } from '../config/llm-config.js';
 
 export class IntentClassifier {
-  private llm: Ollama;
+  private llm: BaseLanguageModel;
 
-  constructor() {
-    this.llm = new Ollama({
-      baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-      model: 'gemma3:latest',
-    });
+  constructor(llm?: BaseLanguageModel) {
+    this.llm = llm || createLLM();
   }
 
   /**
@@ -29,7 +27,7 @@ Respond with only one word: Flight, Hotel, Both, or Other.
 
     try {
       const response = await this.llm.invoke(prompt);
-      const intent = response.trim() as Intent;
+      const intent = (typeof response === 'string' ? response : response.content).toString().trim() as Intent;
       
       // Validate the response
       const result = IntentSchema.safeParse(intent);
