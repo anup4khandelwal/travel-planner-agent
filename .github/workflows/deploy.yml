@@ -1,12 +1,14 @@
-name: Deploy to Railway
+name: Build and Test
 
 on:
   push:
+    branches: [ main, develop ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -28,10 +30,8 @@ jobs:
     - name: Build application
       run: npm run build
       
-    - name: Install Railway CLI
-      run: npm install -g @railway/cli
-      
-    - name: Deploy to Railway
-      run: railway deploy
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    - name: ✅ Ready for deployment
+      run: |
+        echo "🎉 Build and tests successful!"
+        echo "📦 Your app is ready to deploy manually"
+        echo "📖 See QUICK_DEPLOY.md for deployment instructions"

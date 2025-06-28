@@ -207,13 +207,34 @@ public/
 ### Environment Variables
 
 ```bash
+# Server Configuration
 PORT=3000                  # Server port (default: 3000)
-OLLAMA_BASE_URL=http://localhost:11434  # Ollama API URL
+NODE_ENV=development       # Environment mode
+
+# LLM Configuration (choose one)
+LLM_PROVIDER=ollama        # Use 'ollama' for local or 'openai' for cloud
+LLM_MODEL=gemma2:2b        # Model name
+
+# Ollama Configuration (if using LLM_PROVIDER=ollama)
+OLLAMA_BASE_URL=http://localhost:11434
+
+# OpenAI Configuration (if using LLM_PROVIDER=openai)
+OPENAI_API_KEY=sk-your-key-here
 ```
 
-### Ollama Configuration
+### LLM Configuration
 
-The system uses Gemma3 via Ollama for intent classification and entity extraction. Ensure Ollama is running on `localhost:11434`.
+The system supports two LLM providers:
+
+**Local Ollama (Development)**:
+- Install and run Ollama locally
+- Pull the model: `ollama pull gemma2:2b`
+- Set `LLM_PROVIDER=ollama`
+
+**OpenAI (Production/Cloud)**:
+- Get API key from [platform.openai.com](https://platform.openai.com)
+- Set `LLM_PROVIDER=openai` and `OPENAI_API_KEY=your-key`
+- Recommended for cloud deployments
 
 ## 🚀 Deployment
 
@@ -264,20 +285,33 @@ docker run -p 3001:3001 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 tra
 
 ### Cloud Deployment Options
 
-#### Railway.app Deployment
+> 📖 **Quick Start**: See [QUICK_DEPLOY.md](./QUICK_DEPLOY.md) for step-by-step deployment instructions
 
-1. Connect your GitHub repository to Railway
-2. Add the required environment variables:
-   - `PORT=3001`
-   - `OLLAMA_BASE_URL=<your-ollama-endpoint>`
-3. Deploy using the Railway dashboard
+#### Railway (Recommended)
 
-#### Render.com Deployment
+1. Go to [railway.app](https://railway.app) and connect your GitHub repo
+2. Set environment variables:
+   ```
+   NODE_ENV=production
+   LLM_PROVIDER=openai
+   OPENAI_API_KEY=sk-your-key-here
+   LLM_MODEL=gpt-3.5-turbo
+   ```
+3. Deploy automatically from GitHub
 
-1. Create a new Web Service in Render
-2. Connect your GitHub repository
-3. Set build command: `npm install && npm run build`
-4. Set start command: `npm start`
+#### Vercel
+
+1. Install Vercel CLI: `npm install -g vercel`
+2. Deploy: `vercel --prod`
+3. Set environment variables via Vercel dashboard
+
+#### Render (Free Tier Available)
+
+1. Create Web Service at [render.com](https://render.com)
+2. Connect GitHub repository
+3. Build command: `npm install && npm run build`
+4. Start command: `npm start`
+5. Add environment variables in Render dashboard
 5. Add environment variables:
    - `PORT=3001`
    - `OLLAMA_BASE_URL=<your-ollama-endpoint>`
