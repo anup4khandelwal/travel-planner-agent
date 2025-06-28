@@ -27,6 +27,11 @@ jobs:
     
     - name: Run tests
       run: npm test
+      env:
+        # Mock the Ollama service for CI environment
+        OLLAMA_BASE_URL: http://mock-ollama
+        NODE_ENV: test
+      timeout-minutes: 10
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

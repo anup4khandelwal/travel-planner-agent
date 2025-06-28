@@ -1,5 +1,8 @@
 import supertest from 'supertest';
 
+// Increase Jest timeout for all tests to 30 seconds since LLM calls can be slow
+jest.setTimeout(30000);
+
 // Mock the server module to avoid import.meta issues
 jest.mock('../server.js', () => {
   const fastify = require('fastify');

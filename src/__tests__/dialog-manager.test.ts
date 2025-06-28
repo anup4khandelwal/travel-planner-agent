@@ -1,5 +1,8 @@
 import { DialogManager } from '../core/dialog-manager.js';
 
+// Increase Jest timeout for all tests to 30 seconds since LLM calls can be slow
+jest.setTimeout(30000);
+
 describe('DialogManager', () => {
   let dialogManager: DialogManager;
   const testUserId = 'test-user-123';
