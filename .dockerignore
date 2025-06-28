@@ -6,7 +6,10 @@ dist
 .env
 .env.*
 coverage
-*.md
 .vscode
 .idea
 *.log
+# Keep essential markdown files
+!README.md
+!DEPLOYMENT.md
+!QUICK_DEPLOY.md

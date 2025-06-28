@@ -2,20 +2,23 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Copy package files and install ALL dependencies (including dev)
+# Copy package files first for better caching
 COPY package*.json ./
 COPY tsconfig.json ./
+
+# Install all dependencies (including dev dependencies for build)
 RUN npm install
 
-# Copy source code
-COPY src/ ./src/
-COPY public/ ./public/
+# Copy all source files
+COPY . .
 
-# Build TypeScript code
+# Build the application
 RUN npm run build
 
-# Remove dev dependencies to reduce image size
-RUN npm prune --production
+# Remove dev dependencies and clean up
+RUN npm prune --production && \
+    rm -rf src && \
+    rm -rf node_modules/.cache
 
 # Set environment variables
 ENV NODE_ENV=production
