@@ -31,6 +31,7 @@ jobs:
         # Mock the Ollama service for CI environment
         OLLAMA_BASE_URL: http://mock-ollama
         NODE_ENV: test
+        CI: true
       timeout-minutes: 10
       
     - name: Upload build artifacts

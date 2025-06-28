@@ -4,7 +4,7 @@
  */
 
 // Mock response for intent classification
-const MOCK_INTENT_RESPONSES: Record<string, string> = {
+const MOCK_INTENT_RESPONSES = {
   flight: JSON.stringify({ intent: "Flight" }),
   hotel: JSON.stringify({ intent: "Hotel" }),
   both: JSON.stringify({ intent: "Both" }),
@@ -12,7 +12,7 @@ const MOCK_INTENT_RESPONSES: Record<string, string> = {
 };
 
 // Mock response for entity extraction
-const MOCK_ENTITY_RESPONSES: Record<string, string> = {
+const MOCK_ENTITY_RESPONSES = {
   flight: JSON.stringify({
     fromCity: "New York",
     toCity: "Los Angeles",
@@ -30,8 +30,8 @@ const MOCK_ENTITY_RESPONSES: Record<string, string> = {
   default: JSON.stringify({})
 };
 
-// Export the mock module
-export const ollamaMock = {
+// Create the mock module
+const ollamaMock = {
   invoke: async (prompt: string): Promise<string> => {
     // Sleep to simulate network delay (but much faster than real LLM)
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -64,12 +64,17 @@ export const ollamaMock = {
 };
 
 // Mock the Ollama module
-jest.mock('@langchain/ollama', () => {
-  return {
-    Ollama: jest.fn().mockImplementation(() => {
+module.exports = {
+  ollamaMock,
+  setupMock: () => {
+    jest.mock('@langchain/ollama', () => {
       return {
-        invoke: ollamaMock.invoke
+        Ollama: jest.fn().mockImplementation(() => {
+          return {
+            invoke: ollamaMock.invoke
+          };
+        })
       };
-    })
-  };
-});
+    });
+  }
+};

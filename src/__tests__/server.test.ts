@@ -3,6 +3,19 @@ import supertest from 'supertest';
 // Increase Jest timeout for all tests to 30 seconds since LLM calls can be slow
 jest.setTimeout(30000);
 
+// Mock the Ollama module
+jest.mock('@langchain/ollama', () => {
+  return {
+    Ollama: jest.fn().mockImplementation(() => {
+      return {
+        invoke: jest.fn().mockImplementation(async () => {
+          return JSON.stringify({ message: "This is a mock response" });
+        })
+      };
+    })
+  };
+});
+
 // Mock the server module to avoid import.meta issues
 jest.mock('../server.js', () => {
   const fastify = require('fastify');

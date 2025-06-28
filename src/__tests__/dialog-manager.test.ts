@@ -3,6 +3,52 @@ import { DialogManager } from '../core/dialog-manager.js';
 // Increase Jest timeout for all tests to 30 seconds since LLM calls can be slow
 jest.setTimeout(30000);
 
+// Mock the Ollama module
+jest.mock('@langchain/ollama', () => {
+  return {
+    Ollama: jest.fn().mockImplementation(() => {
+      return {
+        invoke: jest.fn().mockImplementation(async (prompt: string) => {
+          // Mock responses based on prompt content
+          if (prompt.includes('intent classification')) {
+            if (prompt.toLowerCase().includes('flight')) {
+              return JSON.stringify({ intent: "Flight" });
+            } else if (prompt.toLowerCase().includes('hotel')) {
+              return JSON.stringify({ intent: "Hotel" });
+            } else {
+              return JSON.stringify({ intent: "Other" });
+            }
+          } 
+          
+          // Entity extraction responses
+          if (prompt.includes('entity extraction')) {
+            if (prompt.toLowerCase().includes('flight')) {
+              return JSON.stringify({
+                fromCity: "New York",
+                toCity: "Los Angeles",
+                departureDate: "2024-12-15",
+                returnDate: "2024-12-20",
+                numPassengers: 1
+              });
+            } else if (prompt.toLowerCase().includes('hotel')) {
+              return JSON.stringify({
+                location: "Paris",
+                checkIn: "2024-12-15",
+                checkOut: "2024-12-20",
+                guests: 2,
+                rooms: 1
+              });
+            }
+          }
+          
+          // Default response
+          return JSON.stringify({ message: "This is a mock response" });
+        })
+      };
+    })
+  };
+});
+
 describe('DialogManager', () => {
   let dialogManager: DialogManager;
   const testUserId = 'test-user-123';
