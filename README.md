@@ -217,23 +217,86 @@ The system uses Gemma3 via Ollama for intent classification and entity extractio
 
 ## 🚀 Deployment
 
-### Production Build
+This application can be deployed in several ways. Choose the option that best fits your needs.
+
+### Local Production Build
 ```bash
+# Build the TypeScript code
 npm run build
+
+# Start the production server
 npm start
+
+# Required environment variables:
+# PORT=3001 (optional, defaults to 3000)
+# OLLAMA_BASE_URL=http://localhost:11434 (required for LLM functionality)
 ```
 
-### Docker Support (Optional)
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY dist ./dist
-COPY public ./public
-EXPOSE 3000
-CMD ["npm", "start"]
+### Docker Deployment
+
+The project includes a complete Docker setup for easy deployment.
+
+#### Option 1: Using Docker Compose (Recommended)
+
+```bash
+# Start both the application and Ollama
+docker-compose up -d
+
+# Pull the Gemma3 model in Ollama
+docker-compose exec ollama ollama pull gemma3:latest
+
+# View logs
+docker-compose logs -f
+
+# Stop the services
+docker-compose down
 ```
+
+#### Option 2: Using Docker Directly
+
+```bash
+# Build the Docker image
+docker build -t travel-planner-agent .
+
+# Run the container
+docker run -p 3001:3001 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 travel-planner-agent
+```
+
+### Cloud Deployment Options
+
+#### Railway.app Deployment
+
+1. Connect your GitHub repository to Railway
+2. Add the required environment variables:
+   - `PORT=3001`
+   - `OLLAMA_BASE_URL=<your-ollama-endpoint>`
+3. Deploy using the Railway dashboard
+
+#### Render.com Deployment
+
+1. Create a new Web Service in Render
+2. Connect your GitHub repository
+3. Set build command: `npm install && npm run build`
+4. Set start command: `npm start`
+5. Add environment variables:
+   - `PORT=3001`
+   - `OLLAMA_BASE_URL=<your-ollama-endpoint>`
+
+#### AWS Elastic Beanstalk Deployment
+
+1. Create a `.ebextensions` folder with configuration files
+2. Use the AWS Elastic Beanstalk CLI to deploy:
+   ```bash
+   eb init
+   eb create travel-planner-env
+   eb deploy
+   ```
+
+### Important Deployment Notes
+
+1. **Ollama Requirement**: This application requires access to an Ollama instance with the `gemma3:latest` model
+2. **Environment Variables**: Make sure to set `OLLAMA_BASE_URL` to point to your Ollama instance
+3. **Resource Requirements**: Ensure your deployment environment has sufficient resources for running LLM inference
 
 ## 🔍 Monitoring
 
