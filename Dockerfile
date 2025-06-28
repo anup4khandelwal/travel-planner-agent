@@ -8,10 +8,13 @@ COPY . .
 # Install dependencies
 RUN npm install
 
+# Ensure public directory exists (create if missing)
+RUN mkdir -p public
+
 # Debug: List files to verify they're copied
 RUN echo "Files in /app:" && ls -la
-RUN echo "Files in /app/src:" && ls -la src/
-RUN echo "Files in /app/public:" && ls -la public/
+RUN echo "Files in /app/src:" && (ls -la src/ || echo "src directory not found")
+RUN echo "Files in /app/public:" && (ls -la public/ || echo "public directory not found")
 
 # Build the application
 RUN npm run build
